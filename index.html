@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>The Arena — Academic Sports Encyclopedia</title>
+<meta name="description" content="A Wikipedia-style encyclopedia of every sport on Earth, written for PHE and B.P.Ed students. Rules, court dimensions, biomechanics, training, officiating and more." />
+<meta name="theme-color" content="#102a43" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="The Arena" />
+<link rel="manifest" href="manifest.json" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='46' fill='%23102A43'/%3E%3Cpath d='M50 22 L78 72 L22 72 Z' fill='%23F2A93B'/%3E%3C/svg%3E" />
+<link rel="apple-touch-icon" href="icons/icon-180.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700;8..60,900&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="masthead" id="top">
+  <div class="masthead__bar">
+    <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">&#9776;</button>
+    <a class="brand" href="#/" aria-label="Home">
+      <span class="brand__mark" aria-hidden="true">A</span>
+      <span class="brand__word">
+        <span class="brand__name">The Arena</span>
+        <span class="brand__tag">academic sports encyclopedia</span>
+      </span>
+    </a>
+    <form class="masthead__search" id="globalSearch" role="search" autocomplete="off">
+      <span class="masthead__search-icon" aria-hidden="true">&#128269;</span>
+      <input type="search" id="globalSearchInput" placeholder="Search a sport, term or module…" aria-label="Search the encyclopedia" />
+      <div class="suggest" id="globalSuggest" hidden></div>
+    </form>
+    <div class="masthead__tools">
+      <button class="pill" id="roleToggle" title="Switch your role">Student</button>
+      <a class="pill pill--sync" id="syncChip" href="#/progress" title="Sign in or create a cloud account">&#9729; Sign in</a>
+      <button class="pill pill--install" id="installBtn" hidden>&#11015; Install app</button>
+      <a class="pill pill--solid" href="#/random">Random</a>
+    </div>
+  </div>
+  <nav class="mainnav" id="mainNav" aria-label="Primary">
+    <a href="#/">Home</a>
+    <a href="#/browse">Browse A–Z</a>
+    <a href="#/categories">Sports by Category</a>
+    <a href="#/modules">Syllabus Modules</a>
+    <a href="#/glossary">Glossary</a>
+    <a href="#/quiz">Quiz Arena</a>
+    <a href="#/flashcards">Flashcards</a>
+    <a href="#/exam">Exam Paper</a>
+    <a href="#/progress">My Progress</a>
+    <a href="#/compare">Compare Courts</a>
+    <a href="#/contribute">Contribute</a>
+  </nav>
+</header>
+
+<main id="main" class="page">
+  <div id="app" class="app" aria-live="polite">
+    <div class="boot">
+      <div class="boot__pulse"></div>
+      <p>Warming up the arena…</p>
+    </div>
+  </div>
+</main>
+
+<footer class="footer">
+  <div class="footer__grid">
+    <div>
+      <p class="footer__head">The Arena</p>
+      <p>An open academic encyclopedia of sport — built for PHE and B.P.Ed students, lecturers and referees. Every entry maps to a syllabus module, so you can study the way your course is taught.</p>
+    </div>
+    <div>
+      <p class="footer__head">Study by module</p>
+      <ul class="footer__links" id="footerModules"></ul>
+    </div>
+    <div>
+      <p class="footer__head">Site</p>
+      <ul class="footer__links">
+        <li><a href="#/browse">Browse A–Z</a></li>
+        <li><a href="#/categories">Sports by Category</a></li>
+        <li><a href="#/glossary">Glossary of terms</a></li>
+        <li><a href="#/quiz">Quiz Arena – practice mode</a></li>
+        <li><a href="#/flashcards">Flashcards – study decks</a></li>
+        <li><a href="#/exam">Exam Paper generator</a></li>
+        <li><a href="#/progress">My Progress</a></li>
+        <li><a href="#/compare">Compare playing areas</a></li>
+        <li><a href="#/contribute">How to contribute</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer__refs">
+    <p class="footer__head">References &amp; sources</p>
+    <div class="footer__refs-grid">
+      <div>
+        <h4 class="footer__sub">Official rulebooks &amp; laws of the game</h4>
+        <p>FIBA &middot; FIFA &middot; FIVB &middot; IHF &middot; BWF &middot; ITF &middot; ITTF &middot; ICC &middot; FIH &middot; World Athletics &middot; World Aquatics &middot; United World Wrestling &middot; IBA &middot; World Archery &middot; ISSF &middot; ISTAF &middot; International Kabaddi Federation &middot; KKFI &mdash; the governing bodies cited on each article page.</p>
+      </div>
+      <div>
+        <h4 class="footer__sub">Academic &amp; curriculum sources</h4>
+        <p>Standard undergraduate texts in Physical Education, Sports Science, Kinesiology and Biomechanics, plus NCERT / CBSE and UGC-prescribed PHE and B.P.Ed syllabus frameworks used to organise the study modules.</p>
+      </div>
+      <div>
+        <h4 class="footer__sub">How figures are stated</h4>
+        <p>Court and field dimensions follow the international code of the governing body named in the article; where codes differ (FIBA vs NBA, FIVB indoor vs beach, etc.) the variant is stated in the text. Always verify against your institution's prescribed rulebook before an exam.</p>
+      </div>
+    </div>
+  </div>
+  <p class="footer__fine">
+    Content is compiled for academic study and cross-checked against official rulebooks where possible. For exam purposes always verify with your institution's prescribed syllabus.
+  </p>
+</footer>
+
+<div class="tooltip" id="tooltip" hidden></div>
+<div class="toast" id="toast" hidden></div>
+<div class="offline" id="offline" hidden>You're offline — showing saved content</div>
+
+<script src="js/data/sports.js"></script>
+<script src="js/data/glossary.js"></script>
+<script src="js/data/modules.js"></script>
+<script src="js/data/articles.js"></script>
+<script src="js/core/markdown.js"></script>
+<script src="js/core/diagrams.js"></script>
+<script src="js/core/search.js"></script>
+<script src="js/core/wiki.js"></script>
+<script src="js/core/quiz.js"></script>
+<script src="js/core/progress.js"></script>
+<script src="js/core/sync.js"></script>
+<script src="js/core/render.js"></script>
+<script src="js/core/router.js"></script>
+<script src="js/app.js"></script>
+<script>
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", function () {
+      navigator.serviceWorker.register("sw.js").then(function (reg) {
+        console.log("The Arena SW registered:", reg.scope);
+      }).catch(function (err) {
+        console.warn("SW registration failed (offline mode needs http/https):", err);
+      });
+    });
+  }
+</script>
+</body>
+</html>
