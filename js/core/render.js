@@ -121,8 +121,8 @@
       }).join("") +
       "</div>" +
       '<div class="chips" style="margin-top:10px">' +
-      M.filter(function (m) { return (m.key === "m1" && window.ANATOMY) || (m.key === "m2" && window.KINESIOLOGY) || (m.key === "m3" && window.TRAINING); }).map(function (m) {
-        return '<a class="chip chip--guide" href="#/' + ({ m1: "anatomy", m2: "kinesiology", m3: "training" })[m.key] + '"><span>&#128218;</span>Study guide <span class="chip__count">' + m.num + "</span></a>";
+      M.filter(function (m) { return MODULE_GUIDES[m.key] && window[MODULE_GUIDES[m.key].win]; }).map(function (m) {
+        return '<a class="chip chip--guide" href="#/' + ({ m1: "anatomy", m2: "kinesiology", m3: "training", m4: "officiating", m5: "psychology", m6: "health" })[m.key] + '"><span>&#128218;</span>Study guide <span class="chip__count">' + m.num + "</span></a>";
       }).join("") +
       "</div></section>" +
 
@@ -238,19 +238,61 @@
     return html;
   }
 
+  var MODULE_GUIDES = {
+    m1: { win: "ANATOMY", route: "#/anatomy" },
+    m2: { win: "KINESIOLOGY", route: "#/kinesiology" },
+    m3: { win: "TRAINING", route: "#/training" },
+    m4: { win: "OFFICIATING", route: "#/officiating" },
+    m5: { win: "PSYCHOLOGY", route: "#/psychology" },
+    m6: { win: "HEALTH", route: "#/health" }
+  };
+
+  function moduleGuideEmbed(key) {
+    var g = MODULE_GUIDES[key];
+    if (!g) return "";
+    var data = window[g.win];
+    if (!data || !data.chapters) return "";
+    var stats = data.stats ? '<div class="stats">' + data.stats.map(function (s) {
+      return '<div class="stat"><b>' + esc(s.value) + "</b><span>" + esc(s.label) + "</span></div>";
+    }).join("") + "</div>" : "";
+    var tocItems = data.chapters.map(function (c) {
+      return '<li><a href="' + g.route + '" data-scroll="' + c.id + '">' + esc(c.title) + "</a></li>";
+    }).join("");
+    var chapters = data.chapters.map(function (c) {
+      return '<section class="prose" id="' + c.id + '"><h3>' + esc(c.title) + "</h3>" + MARKDOWN.render(c.body) + "</section>";
+    }).join("");
+    var exam = (data.exam || []).map(function (e) {
+      return '<div class="prose"><div class="callout callout--exam"><div><span class="callout__label">Exam question</span>' +
+        "<p><b>" + esc(e.q) + "</b><br />Answer: " + esc(e.a) + "</p></div></div></div>";
+    }).join("");
+    return (
+      '<div class="guide-embed">' +
+      '<div class="pagehead pagehead--sub"><p class="pagehead__kicker">Integrated study guide</p>' +
+      '<h2 class="pagehead__title">' + esc(MODULE_BY_KEY[key].title) + " \u2014 full study guide</h2>" +
+      "<p>" + esc(data.intro) + "</p></div>" +
+      stats +
+      '<div class="toc"><p class="toc__title">In this study guide</p><ol>' + tocItems + "</ol></div>" +
+      chapters +
+      '<div class="pagehead pagehead--sub" style="font-family:var(--serif);margin:18px 0 6px"><h2 class="pagehead__title">Final exam revision\u2014 question bank</h2></div>' +
+      exam +
+      "</div>"
+    );
+  }
+
   function renderModule(key) {
     var m = MODULE_BY_KEY[key];
     if (!m) return renderNotFound();
     var arts = A.filter(function (a) { return (a.modules || []).indexOf(key) > -1; });
+    var g = MODULE_GUIDES[key];
+    var guideNotice = g && window[g.win] ? '<div class="notice notice--warn"><div><b>Full study guide available.</b> This module has a dedicated, exam-oriented study guide \u2014 it is integrated below, and also available as a single printable page. <a href="' + g.route + '">Open the standalone study guide &#8594;</a></div></div>' : "";
     var html =
       '<div class="pagehead"><p class="pagehead__kicker">Module ' + m.num + " \u00B7 " + esc(m.semester) + "</p>" +
       '<h1 class="pagehead__title">' + m.icon + " " + esc(m.title) + "</h1><p>" + esc(m.blurb) + "</p></div>" +
-      (key === "m1" ? '<div class="notice notice--warn"><div><b>Full study guide available.</b> This module now has a dedicated, exam-oriented study guide \u2014 systems, bones, joints, muscles, energy and a question bank. <a href="#/anatomy">Open the Anatomy &amp; Physiology study guide &#8594;</a></div></div>' : "") +
-      (key === "m2" ? '<div class="notice notice--warn"><div><b>Full study guide available.</b> This module now has a dedicated, exam-oriented study guide \u2014 joint motion, planes &amp; axes, levers, projectile motion, force, momentum, impulse and centre of gravity, plus a question bank. <a href="#/kinesiology">Open the Kinesiology &amp; Biomechanics study guide &#8594;</a></div></div>' : "") +
-      (key === "m3" ? '<div class="notice notice--warn"><div><b>Full study guide available.</b> This module now has a dedicated, exam-oriented study guide \u2014 training principles, fitness components, strength, speed &amp; agility, endurance, flexibility, periodisation, training methods and recovery, plus a question bank. <a href="#/training">Open the Sports Training &amp; Conditioning study guide &#8594;</a></div></div>' : "") +
+      guideNotice +
       '<div class="notice notice--info"><div><b>What to study here.</b> These are the topics this module expects you to master:<ul>' +
       m.topics.map(function (t) { return "<li>" + esc(t) + "</li>"; }).join("") +
       "</ul></div></div>" +
+      moduleGuideEmbed(key) +
       '<h2 class="small" style="font-family:var(--serif);margin-bottom:6px">Articles mapped to this module</h2>' +
       '<div class="grid">' + arts.map(function (a) {
         var s = SPORTS_BY_SLUG[a.slug];
@@ -294,6 +336,9 @@
   function renderAnatomy() { return renderGuide(window.ANATOMY, "m1", "#/anatomy"); }
   function renderKinesiology() { return renderGuide(window.KINESIOLOGY, "m2", "#/kinesiology"); }
   function renderTraining() { return renderGuide(window.TRAINING, "m3", "#/training"); }
+  function renderOfficiating() { return renderGuide(window.OFFICIATING, "m4", "#/officiating"); }
+  function renderPsychology() { return renderGuide(window.PSYCHOLOGY, "m5", "#/psychology"); }
+  function renderHealth() { return renderGuide(window.HEALTH, "m6", "#/health"); }
 
   function renderGlossary() {
     var cats = G.filter(function (g) { return GLOSSARY_CATS[g.c]; });
@@ -623,6 +668,9 @@
     anatomy: renderAnatomy,
     kinesiology: renderKinesiology,
     training: renderTraining,
+    officiating: renderOfficiating,
+    psychology: renderPsychology,
+    health: renderHealth,
     glossary: renderGlossary,
     glossRows: glossRows,
 compare: renderCompare,

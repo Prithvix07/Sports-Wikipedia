@@ -57,6 +57,9 @@
       else if (target === "#/anatomy" && name === "anatomy") active = true;
       else if (target === "#/kinesiology" && name === "kinesiology") active = true;
       else if (target === "#/training" && name === "training") active = true;
+      else if (target === "#/officiating" && name === "officiating") active = true;
+      else if (target === "#/psychology" && name === "psychology") active = true;
+      else if (target === "#/health" && name === "health") active = true;
       else if (target === "#/glossary" && name === "glossary") active = true;
       else if (target === "#/quiz" && name === "quiz") active = true;
       else if (target === "#/flashcards" && name === "flashcards") active = true;
@@ -103,6 +106,15 @@
         break;
       case "training":
         html = RENDER.training();
+        break;
+      case "officiating":
+        html = RENDER.officiating();
+        break;
+      case "psychology":
+        html = RENDER.psychology();
+        break;
+      case "health":
+        html = RENDER.health();
         break;
       case "glossary":
         html = RENDER.glossary();
@@ -171,6 +183,10 @@
     if (name === "anatomy") bindAnatomy("#/anatomy");
     if (name === "kinesiology") bindAnatomy("#/kinesiology");
     if (name === "training") bindAnatomy("#/training");
+    if (name === "officiating") bindAnatomy("#/officiating");
+    if (name === "psychology") bindAnatomy("#/psychology");
+    if (name === "health") bindAnatomy("#/health");
+    if (name === "module" && r.segs[1]) bindAnatomy("#/module/" + r.segs[1]);
     if (name === "quiz" && r.segs[1]) bindQuiz(r.segs[1]);
     if (name === "flashcards" && r.segs[1]) bindDeck(r.segs[1]);
     if (name === "exam") bindExam();
