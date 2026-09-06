@@ -648,6 +648,17 @@
       navToggle.setAttribute("aria-expanded", open ? "true" : "false");
     });
 
+    /* Auto-close the mobile menu once the visitor scrolls */
+    var closeMenu = function () {
+      var open = mainNav.classList.contains("open");
+      if (open) {
+        mainNav.classList.remove("open");
+        navToggle.setAttribute("aria-expanded", "false");
+      }
+    };
+    window.addEventListener("scroll", closeMenu, { passive: true });
+    window.addEventListener("touchmove", closeMenu, { passive: true });
+
     globalSearchForm.addEventListener("submit", function (e) {
       e.preventDefault();
       var q = globalSearchInput.value;
