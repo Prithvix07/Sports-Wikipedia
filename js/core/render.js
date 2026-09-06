@@ -240,6 +240,7 @@
     var html =
       '<div class="pagehead"><p class="pagehead__kicker">Module ' + m.num + " \u00B7 " + esc(m.semester) + "</p>" +
       '<h1 class="pagehead__title">' + m.icon + " " + esc(m.title) + "</h1><p>" + esc(m.blurb) + "</p></div>" +
+      (key === "m1" ? '<div class="notice notice--warn"><div><b>Full study guide available.</b> This module now has a dedicated, exam-oriented study guide \u2014 systems, bones, joints, muscles, energy and a question bank. <a href="#/anatomy">Open the Anatomy &amp; Physiology study guide &#8594;</a></div></div>' : "") +
       '<div class="notice notice--info"><div><b>What to study here.</b> These are the topics this module expects you to master:<ul>' +
       m.topics.map(function (t) { return "<li>" + esc(t) + "</li>"; }).join("") +
       "</ul></div></div>" +
@@ -250,6 +251,37 @@
       }).join("") + "</div>" +
       '<p class="mt small muted">Not every sport belongs to every module \u2014 the mapping reflects what the syllabus actually asks about that sport.</p>';
     return html;
+  }
+
+  /* Dedicated Module I study guide (js/data/anatomy.js). */
+  function renderAnatomy() {
+    var data = window.ANATOMY;
+    if (!data || !data.chapters) return renderNotFound();
+    var stats = data.stats ? '<div class="stats">' + data.stats.map(function (s) {
+      return '<div class="stat"><b>' + esc(s.value) + "</b><span>" + esc(s.label) + "</span></div>";
+    }).join("") + "</div>" : "";
+    var tocItems = data.chapters.map(function (c) {
+      return '<li><a href="#/anatomy" data-scroll="' + c.id + '">' + esc(c.title) + "</a></li>";
+    }).join("");
+    var chapters = data.chapters.map(function (c) {
+      return '<section class="prose" id="' + c.id + '"><h2>' + esc(c.title) + "</h2>" + MARKDOWN.render(c.body) + "</section>";
+    }).join("");
+    var exam = (data.exam || []).map(function (e) {
+      return '<div class="prose"><div class="callout callout--exam"><div><span class="callout__label">Exam question</span>' +
+        "<p><b>" + esc(e.q) + "</b><br />Answer: " + esc(e.a) + "</p></div></div></div>";
+    }).join("");
+    return (
+      '<div class="pagehead"><p class="pagehead__kicker">Module ' + esc(MODULE_BY_KEY.m1.num) + " \u00B7 " + esc(MODULE_BY_KEY.m1.title) + "</p>" +
+      '<h1 class="pagehead__title">' + esc(MODULE_BY_KEY.m1.icon) + " " + esc(MODULE_BY_KEY.m1.title) + " \u2014 Study guide</h1>" +
+      "<p>" + esc(data.intro) + "</p></div>" +
+      stats +
+      '<div class="toc"><p class="toc__title">In this study guide</p><ol>' + tocItems + "</ol></div>" +
+      '<h2 class="small" style="font-family:var(--serif);margin-bottom:6px">Master guide</h2>' +
+      chapters +
+      '<div class="pagehead pagehead--sub" style="font-family:var(--serif);margin:18px 0 6px"><h2 class="pagehead__title">Final exam revision\u2014 question bank</h2></div>' +
+      exam +
+      '<div class="notice notice--info"><div><b>How to use this guide.</b> Read each chapter, then answer the exam-focus callouts aloud before checking them. Pair the key terms with the <a href="#/glossary">glossary</a> as flashcards, and link the joint and muscle tables back to the sports in the <a href="#/browse">A\u2013Z index</a>.</div></div>'
+    );
   }
 
   function renderGlossary() {
@@ -659,6 +691,7 @@
     category: renderCategory,
     modules: renderModules,
     module: renderModule,
+    anatomy: renderAnatomy,
     glossary: renderGlossary,
     glossRows: glossRows,
     compare: renderCompare,
