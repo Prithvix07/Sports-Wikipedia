@@ -56,6 +56,7 @@
       else if (target === "#/modules" && (name === "modules" || name === "module")) active = true;
       else if (target === "#/anatomy" && name === "anatomy") active = true;
       else if (target === "#/kinesiology" && name === "kinesiology") active = true;
+      else if (target === "#/training" && name === "training") active = true;
       else if (target === "#/glossary" && name === "glossary") active = true;
       else if (target === "#/quiz" && name === "quiz") active = true;
       else if (target === "#/flashcards" && name === "flashcards") active = true;
@@ -101,6 +102,9 @@
         break;
       case "kinesiology":
         html = RENDER.kinesiology();
+        break;
+      case "training":
+        html = RENDER.training();
         break;
       case "glossary":
         html = RENDER.glossary();
@@ -178,6 +182,7 @@
     if (name === "article") bindArticle(r.segs[1]);
     if (name === "anatomy") bindAnatomy("#/anatomy");
     if (name === "kinesiology") bindAnatomy("#/kinesiology");
+    if (name === "training") bindAnatomy("#/training");
     if (name === "quiz" && r.segs[1]) bindQuiz(r.segs[1]);
     if (name === "flashcards" && r.segs[1]) bindDeck(r.segs[1]);
     if (name === "exam") bindExam();

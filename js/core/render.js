@@ -242,6 +242,7 @@
       '<h1 class="pagehead__title">' + m.icon + " " + esc(m.title) + "</h1><p>" + esc(m.blurb) + "</p></div>" +
       (key === "m1" ? '<div class="notice notice--warn"><div><b>Full study guide available.</b> This module now has a dedicated, exam-oriented study guide \u2014 systems, bones, joints, muscles, energy and a question bank. <a href="#/anatomy">Open the Anatomy &amp; Physiology study guide &#8594;</a></div></div>' : "") +
       (key === "m2" ? '<div class="notice notice--warn"><div><b>Full study guide available.</b> This module now has a dedicated, exam-oriented study guide \u2014 joint motion, planes &amp; axes, levers, projectile motion, force, momentum, impulse and centre of gravity, plus a question bank. <a href="#/kinesiology">Open the Kinesiology &amp; Biomechanics study guide &#8594;</a></div></div>' : "") +
+      (key === "m3" ? '<div class="notice notice--warn"><div><b>Full study guide available.</b> This module now has a dedicated, exam-oriented study guide \u2014 training principles, fitness components, strength, speed &amp; agility, endurance, flexibility, periodisation, training methods and recovery, plus a question bank. <a href="#/training">Open the Sports Training &amp; Conditioning study guide &#8594;</a></div></div>' : "") +
       '<div class="notice notice--info"><div><b>What to study here.</b> These are the topics this module expects you to master:<ul>' +
       m.topics.map(function (t) { return "<li>" + esc(t) + "</li>"; }).join("") +
       "</ul></div></div>" +
@@ -287,6 +288,7 @@
 
   function renderAnatomy() { return renderGuide(window.ANATOMY, "m1", "#/anatomy"); }
   function renderKinesiology() { return renderGuide(window.KINESIOLOGY, "m2", "#/kinesiology"); }
+  function renderTraining() { return renderGuide(window.TRAINING, "m3", "#/training"); }
 
   function renderGlossary() {
     var cats = G.filter(function (g) { return GLOSSARY_CATS[g.c]; });
@@ -697,6 +699,7 @@
     module: renderModule,
     anatomy: renderAnatomy,
     kinesiology: renderKinesiology,
+    training: renderTraining,
     glossary: renderGlossary,
     glossRows: glossRows,
     compare: renderCompare,
