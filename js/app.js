@@ -55,6 +55,7 @@
       else if (target === "#/categories" && (name === "categories" || name === "category")) active = true;
       else if (target === "#/modules" && (name === "modules" || name === "module")) active = true;
       else if (target === "#/anatomy" && name === "anatomy") active = true;
+      else if (target === "#/kinesiology" && name === "kinesiology") active = true;
       else if (target === "#/glossary" && name === "glossary") active = true;
       else if (target === "#/quiz" && name === "quiz") active = true;
       else if (target === "#/flashcards" && name === "flashcards") active = true;
@@ -97,6 +98,9 @@
         break;
       case "anatomy":
         html = RENDER.anatomy();
+        break;
+      case "kinesiology":
+        html = RENDER.kinesiology();
         break;
       case "glossary":
         html = RENDER.glossary();
@@ -172,20 +176,21 @@
     if (name === "edit") bindEditor(r.segs[1]);
     if (name === "history") bindHistory(r.segs[1]);
     if (name === "article") bindArticle(r.segs[1]);
-    if (name === "anatomy") bindAnatomy();
+    if (name === "anatomy") bindAnatomy("#/anatomy");
+    if (name === "kinesiology") bindAnatomy("#/kinesiology");
     if (name === "quiz" && r.segs[1]) bindQuiz(r.segs[1]);
     if (name === "flashcards" && r.segs[1]) bindDeck(r.segs[1]);
     if (name === "exam") bindExam();
     if (name === "progress") bindProgress();
   }
 
-  function bindAnatomy() {
+  function bindAnatomy(route) {
     app.querySelectorAll("[data-scroll]").forEach(function (a) {
       a.addEventListener("click", function (e) {
         e.preventDefault();
         var el = document.getElementById(a.getAttribute("data-scroll"));
         if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
-        history.replaceState(null, "", "#/anatomy");
+        history.replaceState(null, "", route);
       });
     });
   }
