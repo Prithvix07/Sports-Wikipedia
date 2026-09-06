@@ -4,7 +4,7 @@
    Version the CACHE name to bust old caches on deploy.
    ========================================================================== */
 
-var CACHE = "arena-v8";
+var CACHE = "arena-v9";
 var SHELL = [
   "./",
   "./index.html",
@@ -22,7 +22,6 @@ var SHELL = [
   "./js/core/search.js",
   "./js/core/wiki.js",
   "./js/core/quiz.js",
-  "./js/core/progress.js",
   "./js/core/render.js",
   "./js/core/router.js",
   "./js/app.js",

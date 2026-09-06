@@ -413,22 +413,19 @@
         "<p>No exam pairs yet \u2014 add <code>**Q** / **A**</code> pairs to an article and a deck appears here.</p></div>";
     }
     var rows = decks.map(function (z) {
-      var st = window.PROGRESS.deckStatus(z.slug);
-      var pct = st && st.seen ? Math.round((st.known / st.seen) * 100) : null;
-      var tag = pct === null ? '<span class="badge badge--sport">Not studied</span>' : '<span class="badge ' + (pct >= 75 ? "badge--verified" : "badge--sport") + '">' + pct + "% mastered</span>";
       return (
         '<a class="list-row quiz-row" href="#/flashcards/' + z.slug + '">' +
         "<div>" +
         '<h3 class="list-row__title">' + z.emoji + " " + esc(z.sportName) + "</h3>" +
         "<p>" + z.count + " cards \u2014 flip each card, self-mark what you knew.</p>" +
-        '<div class="list-row__tags">' + tag + "</div></div>" +
+        '<div class="list-row__tags"><span class="badge badge--sport">' + z.count + " cards</span></div></div>" +
         '<div class="list-row__arrow">&#8594;</div>' +
         "</a>"
       );
     }).join("");
     return (
       '<div class="pagehead"><p class="pagehead__kicker">Study decks</p><h1 class="pagehead__title">Flashcards</h1>' +
-      "<p>The same <b>Exam focus</b> Q&amp;A as the quizzes, but as self-paced flashcards \u2014 flip, self-mark, and your mastery is tracked in <a href='#/progress'>My progress</a>.</p></div>" +
+      "<p>The same <b>Exam focus</b> Q&amp;A as the quizzes, but as self-paced flashcards \u2014 flip, self-mark, and repeat what you miss.</p></div>" +
       rows
     );
   }
@@ -445,8 +442,6 @@
         '<div class="actions"><a class="btn" href="#/article/' + slug + '">Read the article</a><a class="btn btn--ghost" href="#/flashcards">All decks</a></div>'
       );
     }
-    var st = window.PROGRESS.deckStatus(slug);
-    var mastered = st ? " \u00B7 " + st.known + "/" + st.seen + " known" : "";
     return (
       '<nav class="article__crumbs"><a href="#/">Home</a> \u203A <a href="#/flashcards">Flashcards</a> \u203A <a href="#/article/' + slug + '">' + esc(sport.name || art.title) + "</a></nav>" +
       '<div class="pagehead"><p class="pagehead__kicker">Study deck</p><h1 class="pagehead__title">' + (art.emoji ? art.emoji + " " : "") + esc(sport.name || art.title) + ' flashcards</h1>' +
@@ -477,35 +472,6 @@
       "</div>" +
       '<div id="examOut"></div>'
     );
-  }
-
-  function renderProgress() {
-    var p = window.PROGRESS.all();
-    var q = p.quiz;
-    var quizRows = q.bySport.sort(function (x, y) { return y.best - x.best; }).map(function (s) {
-      return '<div class="list-row"><div><h3 class="list-row__title">' + esc(s.sport) + "</h3>" +
-        '<div class="list-row__tags"><span class="badge badge--official">' + s.attempts + " attempt" + (s.attempts === 1 ? "" : "s") + "</span></div></div>" +
-        '<div class="list-row__arrow">' + s.best + '% best</div></div>';
-    }).join("");
-    var deckRows = p.decks.map(function (d) {
-      var cls = d.mastery >= 75 ? "badge--verified" : "badge--sport";
-      return '<div class="list-row"><div><h3 class="list-row__title">' + esc(d.sport) + "</h3>" +
-        '<div class="list-row__tags"><span class="badge badge--official">' + d.reviews + " deck review" + (d.reviews === 1 ? "" : "s") + "</span></div></div>" +
-        '<div class="list-row__arrow">' + d.mastery + '% mastered</div></div>';
-    }).join("");
-    var html =
-      '<div class="pagehead"><p class="pagehead__kicker">Your study dashboard</p><h1 class="pagehead__title">My progress</h1>' +
-      "<p>Everything is stored on this device \u2014 quiz scores, flashcard mastery and your study streak. Use it to spot what needs revision before the exam.</p></div>";
-    html += '<div class="stats"><div class="stat"><b>' + p.streak.count + "</b><span>day streak</span></div>" +
-      '<div class="stat"><b>' + q.attempts + "</b><span>quizzes taken</span></div>" +
-      '<div class="stat"><b>' + q.questionsAnswered + "</b><span>questions answered</span></div>" +
-      '<div class="stat"><b>' + q.accuracy + '%</b><span>overall accuracy</span></div></div>';
-    html += '<div class="progress-cols">';
-    html += '<div class="progress-col"><h2>Quiz best scores</h2>' + (quizRows || '<p class="muted">Take a quiz to start tracking.</p>') + "</div>";
-    html += '<div class="progress-col"><h2>Flashcard mastery</h2>' + (deckRows || '<p class="muted">Run a flashcard deck to start tracking.</p>') + "</div>";
-    html += "</div>";
-    html += '<div class="actions"><button class="btn btn--ghost btn--danger" id="progressReset">Reset all progress</button></div>';
-    return html;
   }
 
   function renderSearch(q, filters) {
@@ -667,7 +633,6 @@ compare: renderCompare,
     flashcards: renderFlashcards,
     flashcardDeck: renderFlashcardDeck,
     exam: renderExam,
-    progress: renderProgress,
     notFound: renderNotFound,
     card: card,
     moduleBadges: moduleBadges,

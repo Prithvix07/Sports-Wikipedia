@@ -61,7 +61,6 @@
       else if (target === "#/quiz" && name === "quiz") active = true;
       else if (target === "#/flashcards" && name === "flashcards") active = true;
       else if (target === "#/exam" && name === "exam") active = true;
-      else if (target === "#/progress" && name === "progress") active = true;
       else if (target === "#/compare" && name === "compare") active = true;
       a.classList.toggle("active", active);
     });
@@ -140,9 +139,6 @@
       case "exam":
         html = RENDER.exam();
         break;
-      case "progress":
-        html = RENDER.progress();
-        break;
       case "random":
         var pool = window.ARTICLES.concat(
           window.SPORTS.list.filter(function (s) {
@@ -178,7 +174,6 @@
     if (name === "quiz" && r.segs[1]) bindQuiz(r.segs[1]);
     if (name === "flashcards" && r.segs[1]) bindDeck(r.segs[1]);
     if (name === "exam") bindExam();
-    if (name === "progress") bindProgress();
   }
 
   function bindAnatomy(route) {
