@@ -16,7 +16,6 @@
   var suggestEl = document.getElementById("globalSuggest");
   var installBtn = document.getElementById("installBtn");
   var offlineEl = document.getElementById("offline");
-  var syncChip = document.getElementById("syncChip");
 
   var toastTimer = null;
   function toast(msg, isErr) {
@@ -190,34 +189,6 @@
       e.preventDefault();
       window.print();
     });
-    syncArticleContent(slug);
-  }
-
-  /* If signed in, check the backend for a published version of this article
-     and show it. Never overwrites a local draft the student has written. */
-  function syncArticleContent(slug) {
-    if (!window.SYNC || !window.WIKI) return;
-    var ready = window.SYNC.hasSession()
-      ? Promise.resolve(window.SYNC.snapshot().user)
-      : window.SYNC.checkSession();
-    ready.then(function (user) {
-      if (!user) return;
-      if (window.WIKI.hasLocalEdit(slug)) return;
-      return window.SYNC.fetchArticle(slug);
-    }).then(function (data) {
-      if (!data || !data.publishedBody) return;
-      if (window.WIKI.hasLocalEdit(slug)) return;
-      var meta = data.editMeta || {};
-      window.WIKI.importPublished(slug, {
-        body: data.publishedBody,
-        note: meta.note,
-        by: meta.by,
-        at: meta.at
-      });
-      toast("Loaded the published cloud version of this article.");
-      var r = window.ROUTER.parse();
-      if (r.name === "article" && r.segs[1] === slug) route();
-    }).catch(function (e) { /* server unreachable \u2014 stay offline */ });
   }
 
   function bindBrowse() {
@@ -339,32 +310,6 @@
     if (saveBtn) saveBtn.addEventListener("click", function () { save(false); });
     if (pubBtn) pubBtn.addEventListener("click", function () { save(true); });
 
-    var pushBtn = document.getElementById("pushEdit");
-    if (pushBtn) pushBtn.addEventListener("click", function () {
-      var body = box.value;
-      if (!body.trim()) { toast("The article can't be empty.", true); return; }
-      WIKI.saveEdit(slug, body, "Edited from the browser editor", WIKI.currentRole());
-      var ready = (window.SYNC && window.SYNC.hasSession())
-        ? Promise.resolve(window.SYNC.snapshot().user)
-        : (window.SYNC ? window.SYNC.checkSession() : Promise.resolve(null));
-      ready.then(function (user) {
-        if (!user) {
-          toast("Sign in on the Progress page first, then push.", true);
-          location.hash = "#/progress";
-          return;
-        }
-        toast("Pushing to the cloud\u2026");
-        return window.SYNC.pushWiki(slug, body, "Edited from the browser editor").then(function () {
-          if (user.role === "professor") {
-            return window.SYNC.publishWiki(slug).then(function () {
-              toast("Saved, pushed and published to the cloud.");
-            });
-          }
-          toast("Saved and pushed to the cloud as a draft.");
-          location.hash = "#/article/" + slug;
-        });
-      }).catch(function (e) { toast("Cloud push failed: " + e.message, true); });
-    });
     var cancel = document.getElementById("cancelEdit");
     if (cancel) cancel.addEventListener("click", function () { location.hash = "#/article/" + slug; });
     var reset = document.getElementById("resetEdit");
@@ -656,118 +601,6 @@
         location.hash = "#/progress";
       }
     });
-
-    bindSyncPanel();
-  }
-
-  /* ---------------- cloud sync (optional backend) ---------------- */
-
-  function bindSyncPanel() {
-    if (!window.SYNC) return;
-    var statusEl = app.querySelector("#syncStatus");
-
-    function setStatus(msg, isErr) {
-      if (!statusEl) return;
-      statusEl.textContent = msg;
-      statusEl.className = "sync-status" + (isErr ? " sync-status--err" : "");
-    }
-
-    var registerBtn = app.querySelector("#syncRegister");
-    var loginBtn = app.querySelector("#syncLogin");
-    var logoutBtn = app.querySelector("#syncLogout");
-    var pushBtn = app.querySelector("#syncPush");
-    var pullBtn = app.querySelector("#syncPull");
-
-    function creds() {
-      var name = (app.querySelector("#syncName") || {}).value || "";
-      var pass = (app.querySelector("#syncPass") || {}).value || "";
-      var role = (app.querySelector("#syncRole") || {}).value || "student";
-      return { name: name, passcode: pass, role: role };
-    }
-
-    if (registerBtn) registerBtn.addEventListener("click", function () {
-      var c = creds();
-      if (!c.name || !c.passcode) { setStatus("Enter a username and passcode first.", true); return; }
-      setStatus("Creating account\u2026");
-      window.SYNC.register(c.name, c.passcode, c.role).then(function (user) {
-        setStatus("Account created \u2014 signed in as " + user.name + ".");
-        toast("Cloud account created. Progress will sync from now on.");
-        location.hash = "#/progress";
-      }).catch(function (e) { setStatus(e.message, true); });
-    });
-
-    if (loginBtn) loginBtn.addEventListener("click", function () {
-      var c = creds();
-      if (!c.name || !c.passcode) { setStatus("Enter your username and passcode.", true); return; }
-      setStatus("Signing in\u2026");
-      window.SYNC.login(c.name, c.passcode).then(function (user) {
-        setStatus("Signed in as " + user.name + ".");
-        toast("Signed in to the cloud.");
-        location.hash = "#/progress";
-      }).catch(function (e) { setStatus(e.message, true); });
-    });
-
-    if (logoutBtn) logoutBtn.addEventListener("click", function () {
-      window.SYNC.logout();
-      setStatus("Signed out.");
-      toast("Signed out of the cloud.");
-      location.hash = "#/progress";
-    });
-
-    if (pushBtn) pushBtn.addEventListener("click", function () {
-      setStatus("Pushing progress\u2026");
-      window.SYNC.pushProgress(window.PROGRESS.all()).then(function (serverProg) {
-        setStatus("Progress pushed \u2014 " + serverProg.quiz.length + " quiz records saved.");
-        toast("Progress synced to the cloud.");
-      }).catch(function (e) { setStatus(e.message, true); });
-    });
-
-    if (pullBtn) pullBtn.addEventListener("click", function () {
-      setStatus("Pulling wiki edits\u2026");
-      window.SYNC.pullWiki().then(function (data) {
-        var edits = data.edits || {};
-        var slugs = Object.keys(edits);
-        var applied = 0;
-        slugs.forEach(function (slug) {
-          var e = edits[slug];
-          if (!window.WIKI.hasLocalEdit(slug)) {
-            window.WIKI.importPublished(slug, {
-              body: e.body,
-              note: e.note,
-              by: e.by,
-              at: e.at
-            });
-            applied++;
-          }
-        });
-        setStatus("Pulled " + slugs.length + " edited article" + (slugs.length === 1 ? "" : "s") + " \u2014 " + applied + " published version" + (applied === 1 ? "" : "s") + " applied to article pages.");
-        toast(applied ? "Cloud versions applied. Open those articles to see them." : "Nothing new to apply \u2014 local drafts were kept.");
-        location.hash = "#/progress";
-      }).catch(function (e) { setStatus(e.message, true); });
-    });
-  }
-
-  /* Update the small cloud chip in the masthead. Always visible so there is a
-     clear login entry point: "Sign in" when logged out, the user's name when in. */
-  function initSyncChip() {
-    if (!window.SYNC || !syncChip) return;
-
-    function paint(s) {
-      var label = s.user
-        ? s.user.name + (s.online ? "" : " (offline)")
-        : "Sign in" + (s.online ? "" : " \u2014 cloud off");
-      syncChip.textContent = "\u2601 " + label;
-      syncChip.hidden = false;
-      syncChip.title = s.user
-        ? "Signed in as " + s.user.name + " \u2014 click for cloud options"
-        : "Sign in or create a cloud account (run node server/index.js)";
-    }
-
-    window.SYNC.onChange(paint);
-    paint(window.SYNC.snapshot());
-
-    /* Don't block startup on a server that may not be running. */
-    setTimeout(function () { window.SYNC.checkSession(); }, 800);
   }
 
   /* ---------------- global search + suggestions ---------------- */
@@ -828,7 +661,6 @@
   function init() {
     buildFooterModules();
     syncRoleButton();
-    initSyncChip();
 
     roleBtn.addEventListener("click", function () {
       WIKI.setRole(WIKI.currentRole() === "professor" ? "student" : "professor");

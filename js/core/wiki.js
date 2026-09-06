@@ -109,42 +109,6 @@
     set("edits", all);
   }
 
-  /* Import a published cloud version from the backend. Stored as a "cloud"
-     copy so article pages can show server content without clobbering any
-     local draft the reader may write afterwards. */
-  function importPublished(slug, data) {
-    var all = get("edits", {});
-    var revs = get("revisions", {});
-    var at = data.at || new Date().toISOString();
-    var by = data.by || "server";
-    all[slug] = {
-      body: data.body,
-      at: at,
-      by: by,
-      role: data.role || "professor",
-      note: data.note || "Published on the server",
-      published: true,
-      source: "cloud"
-    };
-    set("edits", all);
-    revs[slug] = revs[slug] || [];
-    revs[slug].push({
-      id: uid(),
-      at: at,
-      by: by,
-      role: "professor",
-      note: data.note || "Synced from the server",
-      body: data.body
-    });
-    if (revs[slug].length > 50) revs[slug] = revs[slug].slice(-50);
-    set("revisions", revs);
-  }
-
-  function isCloudEdit(slug) {
-    var e = editsFor(slug);
-    return !!(e && e.source === "cloud");
-  }
-
   /* Fake "peer review" for professors: approving marks the revision set */
   function setReviewed(slug) {
     var all = get("reviewed", {});
@@ -180,8 +144,6 @@
     saveEdit: saveEdit,
     revertTo: revertTo,
     resetArticle: resetArticle,
-    importPublished: importPublished,
-    isCloudEdit: isCloudEdit,
     setReviewed: setReviewed,
     isReviewed: isReviewed,
     contributorCount: contributorCount,

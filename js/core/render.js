@@ -320,7 +320,7 @@
       '<div class="step"><div class="step__num">3</div><div><h4>Save as a draft</h4><p>Your draft is saved locally and a revision is recorded automatically. Nothing is overwritten \u2014 you can always revert from the <b>History</b> page.</p></div></div>' +
       '<div class="step"><div class="step__num">4</div><div><h4>Get it reviewed</h4><p>Switch your role to <b>Professor</b> (top-right button) and use <b>Publish</b> to mark the draft reviewed. Switch back to <b>Student</b> to keep drafting.</p></div></div>' +
       "</div>" +
-      '<div class="notice notice--warn"><div><b>Editing here is a simulation.</b> Because this build runs entirely in your browser, edits and revisions are stored in localStorage on this device. A server-backed version would share the same page design with a real database behind it.</div></div>'
+      '<div class="notice notice--warn"><div><b>How editing works.</b> This build runs entirely in your browser \u2014 edits and revisions are stored in localStorage on this device, so they stay with you and never overwrite the built-in articles.</div></div>'
     );
   }
 
@@ -476,41 +476,6 @@
     html += '<div class="progress-col"><h2>Flashcard mastery</h2>' + (deckRows || '<p class="muted">Run a flashcard deck to start tracking.</p>') + "</div>";
     html += "</div>";
     html += '<div class="actions"><button class="btn btn--ghost btn--danger" id="progressReset">Reset all progress</button></div>';
-    html += renderSyncPanel();
-    return html;
-  }
-
-  /* Small, optional panel that connects the offline PWA to the backend
-     (server/index.js). Hides itself if no server is reachable. */
-  function renderSyncPanel() {
-    var s = window.SYNC ? window.SYNC.snapshot() : { online: false, user: null, lastError: null };
-    var loggedIn = !!(s.user && s.user.name);
-    var html =
-      '<section class="sync-panel" id="syncPanel">' +
-      '<div class="pagehead pagehead--sub"><p class="pagehead__kicker">Optional backend</p><h2 class="pagehead__title">Cloud sync</h2>' +
-      "<p>Keeps your progress and wiki drafts on a server (run <code>node server/index.js</code>) so they follow you across devices. Without it, everything stays on this device only.</p></div>";
-
-    if (!loggedIn) {
-      html += '<div class="sync-form">' +
-        '<label class="exam-field"><span>Username</span><input id="syncName" type="text" autocomplete="off" /></label>' +
-        '<label class="exam-field"><span>Passcode</span><input id="syncPass" type="password" /></label>' +
-        '<label class="exam-field"><span>Role</span><select id="syncRole"><option value="student">Student</option><option value="professor">Professor</option></select></label>' +
-        '<div class="exam-actions">' +
-        '<button class="btn" id="syncRegister">&#43; Create account</button>' +
-        '<button class="btn btn--ghost" id="syncLogin">Log in</button>' +
-        "</div>" +
-        '<p class="sync-status" id="syncStatus"></p></div>';
-    } else {
-      html += '<div class="sync-user">' +
-        '<p><b>&#9989; Signed in as ' + esc(s.user.name) + "</b> <span class=\"badge badge--official\">" + esc(s.user.role) + "</span></p>" +
-        '<div class="exam-actions">' +
-        '<button class="btn" id="syncPush">&#8593; Push my progress</button>' +
-        '<button class="btn btn--ghost" id="syncPull">&#8595; Pull wiki edits</button>' +
-        '<button class="btn btn--ghost btn--danger" id="syncLogout">Log out</button>' +
-        "</div>" +
-        '<p class="sync-status" id="syncStatus"></p></div>';
-    }
-    html += "</section>";
     return html;
   }
 
@@ -574,7 +539,6 @@
       '<textarea id="editorBox" spellcheck="false">' + esc(source) + "</textarea>" +
       '<div class="editor__foot">' +
       '<button class="btn" id="saveEdit">Save draft</button>' +
-      '<button class="btn btn--ghost" id="pushEdit" title="Requires a cloud account">&#8593; Save &amp; push to cloud</button>' +
       (WIKI.canPublish() ? '<button class="btn btn--ghost" id="publishEdit">Publish (mark reviewed)</button>' : "") +
       '<button class="btn btn--ghost" id="cancelEdit">Cancel</button>' +
       (WIKI.hasLocalEdit(slug) ? '<button class="btn btn--ghost btn--danger" id="resetEdit">Discard local draft</button>' : "") +
@@ -674,11 +638,10 @@
     var a = r.article;
     if (edited) {
       var ed = WIKI.revisionsFor(slug).slice().reverse()[0] || { at: Date.now(), note: "Local draft" };
-      var cloud = WIKI.isCloudEdit(slug);
       a = Object.assign({}, a, {
         sections: [
-          { id: "local-draft", title: cloud ? "Published version (synced from the server)" : "Local draft \u2014 " + (ed.note || "editing in progress"), module: null, body: edited },
-          { id: "official", title: cloud ? "Built-in article (below the fold)" : "Official published version (below the fold)", module: null, body: a.sections.map(function (s) { return "## " + s.title + "\n\n" + s.body.replace(/^\s+|\s+$/g, "") + "\n"; }).join("\n") }
+          { id: "local-draft", title: "Local draft \u2014 " + (ed.note || "editing in progress"), module: null, body: edited },
+          { id: "official", title: "Official published version (below the fold)", module: null, body: a.sections.map(function (s) { return "## " + s.title + "\n\n" + s.body.replace(/^\s+|\s+$/g, "") + "\n"; }).join("\n") }
         ]
       });
     }
@@ -748,10 +711,7 @@
     }).join("");
 
     var editBanner = edited ?
-      (WIKI.isCloudEdit(a.slug) ?
-        '<div class="notice notice--info"><div><b>Showing the cloud-published version.</b> Synced from the server. <a href="#/history/' + a.slug + '">Review history</a>.</div></div>'
-        :
-        '<div class="notice notice--info"><div><b>Local draft active.</b> Showing the working copy saved on this device. <a href="#/history/' + a.slug + '">Review revisions</a> or <a href="#/edit/' + a.slug + '">continue editing</a>.</div></div>')
+      '<div class="notice notice--info"><div><b>Local draft active.</b> Showing the working copy saved on this device. <a href="#/history/' + a.slug + '">Review revisions</a> or <a href="#/edit/' + a.slug + '">continue editing</a>.</div></div>'
       : "";
 
     var toolbar =
