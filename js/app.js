@@ -63,7 +63,6 @@
       else if (target === "#/exam" && name === "exam") active = true;
       else if (target === "#/progress" && name === "progress") active = true;
       else if (target === "#/compare" && name === "compare") active = true;
-      else if (target === "#/contribute" && name === "contribute") active = true;
       a.classList.toggle("active", active);
     });
   }
@@ -112,9 +111,6 @@
       case "compare":
         html = RENDER.compare();
         break;
-      case "contribute":
-        html = RENDER.contribute();
-        break;
       case "search":
         html = RENDER.search(r.query.q || "", {
           category: r.query.category || "",
@@ -123,9 +119,6 @@
         break;
       case "article":
         html = RENDER.article(r.segs[1]);
-        break;
-      case "edit":
-        html = RENDER.edit(r.segs[1]);
         break;
       case "history":
         html = RENDER.history(r.segs[1]);
@@ -177,7 +170,6 @@
     if (name === "category") bindCategory();
     if (name === "glossary") bindGlossary();
     if (name === "search") bindSearch(r);
-    if (name === "edit") bindEditor(r.segs[1]);
     if (name === "history") bindHistory(r.segs[1]);
     if (name === "article") bindArticle(r.segs[1]);
     if (name === "anatomy") bindAnatomy("#/anatomy");
@@ -308,44 +300,6 @@
     }
     if (c) c.addEventListener("change", refresh);
     if (m) m.addEventListener("change", refresh);
-  }
-
-  function bindEditor(slug) {
-    var box = document.getElementById("editorBox");
-    if (!box) return;
-    /* quick-insert toolbar */
-    app.querySelectorAll("[data-ins]").forEach(function (b) {
-      b.addEventListener("click", function () {
-        var ins = b.getAttribute("data-ins");
-        var start = box.selectionStart, end = box.selectionEnd;
-        box.value = box.value.slice(0, start) + ins + box.value.slice(end);
-        box.focus();
-        box.setSelectionRange(start + ins.length, start + ins.length);
-      });
-    });
-    function save(publish) {
-      var body = box.value;
-      if (!body.trim()) { toast("The article can't be empty.", true); return; }
-      WIKI.saveEdit(slug, body, "Edited from the browser editor", WIKI.currentRole());
-      if (publish) WIKI.setReviewed(slug);
-      toast(publish ? "Published & marked reviewed." : "Draft saved. A revision was recorded.");
-      location.hash = "#/article/" + slug;
-    }
-    var saveBtn = document.getElementById("saveEdit");
-    var pubBtn = document.getElementById("publishEdit");
-    if (saveBtn) saveBtn.addEventListener("click", function () { save(false); });
-    if (pubBtn) pubBtn.addEventListener("click", function () { save(true); });
-
-    var cancel = document.getElementById("cancelEdit");
-    if (cancel) cancel.addEventListener("click", function () { location.hash = "#/article/" + slug; });
-    var reset = document.getElementById("resetEdit");
-    if (reset) reset.addEventListener("click", function () {
-      if (confirm("Discard the local draft for this article?")) {
-        WIKI.resetArticle(slug);
-        toast("Local draft discarded.");
-        location.hash = "#/article/" + slug;
-      }
-    });
   }
 
   function bindHistory(slug) {

@@ -31,7 +31,7 @@
     set("role", r === "professor" ? "professor" : "student");
   }
   function canPublish() { return currentRole() === "professor"; }
-  function canEdit() { return true; } /* everyone can draft */
+  function canEdit() { return currentRole() === "professor"; } /* only professors revise the wiki */
 
   /* ---------------- Revisions & edit overlay ----------------
      revisions[slug] = [{ id, at, by, role, note, body }]

@@ -353,20 +353,6 @@
     return html;
   }
 
-  function renderContribute() {
-    return (
-      '<div class="pagehead"><p class="pagehead__kicker">The wiki needs you</p><h1 class="pagehead__title">Contribute to the Arena</h1>' +
-      "<p>Every article on this site can be edited by students and reviewed by faculty. Your drafts live on your device as a working copy; when a professor approves, the entry is marked reviewed.</p></div>" +
-      '<div class="steps">' +
-      '<div class="step"><div class="step__num">1</div><div><h4>Pick a sport</h4><p>Browse the <a href="#/browse">A\u2013Z index</a> and open any article. Stubs are the easiest place to start writing.</p></div></div>' +
-      '<div class="step"><div class="step__num">2</div><div><h4>Open the editor</h4><p>Hit <b>Edit this article</b>. The editor works in simple markdown \u2014 <code>## headings</code>, <code>- lists</code>, <code>[[sport-name|link text]]</code> for wiki links, and <code>>>> exam</code> callouts for exam-boxes.</p></div></div>' +
-      '<div class="step"><div class="step__num">3</div><div><h4>Save as a draft</h4><p>Your draft is saved locally and a revision is recorded automatically. Nothing is overwritten \u2014 you can always revert from the <b>History</b> page.</p></div></div>' +
-      '<div class="step"><div class="step__num">4</div><div><h4>Get it reviewed</h4><p>Switch your role to <b>Professor</b> (top-right button) and use <b>Publish</b> to mark the draft reviewed. Switch back to <b>Student</b> to keep drafting.</p></div></div>' +
-      "</div>" +
-      '<div class="notice notice--warn"><div><b>How editing works.</b> This build runs entirely in your browser \u2014 edits and revisions are stored in localStorage on this device, so they stay with you and never overwrite the built-in articles.</div></div>'
-    );
-  }
-
   function renderQuiz() {
     var quizzes = window.QUIZ.list();
     var total = window.QUIZ.total();
@@ -557,40 +543,6 @@
     return html;
   }
 
-  function renderEdit(slug) {
-    var r = resolveArticle(slug);
-    if (!r) return renderNotFound();
-    var a = r.article;
-    var current = WIKI.effectiveBody(slug);
-    var source = current || a.sections.map(function (s) {
-      return "## " + s.title + "\n\n" + s.body.replace(/^\s+|\s+$/g, "") + "\n";
-    }).join("\n");
-
-    return (
-      '<div class="pagehead"><p class="pagehead__kicker">Wiki editor</p><h1 class="pagehead__title">Editing: ' + esc(a.title) + "</h1>" +
-      "<p>You are editing as <b>" + esc(WIKI.currentRole()) + "</b>." +
-      (WIKI.canPublish() ? " Professors can publish (mark reviewed)." : " Students save drafts for faculty review.") + "</p></div>" +
-      '<div class="editor">' +
-      '<div class="editor__bar">' +
-      '<button class="btn btn--small btn--ghost" data-ins="## ">H2</button>' +
-      '<button class="btn btn--small btn--ghost" data-ins="**bold**">B</button>' +
-      '<button class="btn btn--small btn--ghost" data-ins="\n- item">List</button>' +
-      '<button class="btn btn--small btn--ghost" data-ins="\n>>> exam\ntitle\ncontent">Exam box</button>' +
-      '<button class="btn btn--small btn--ghost" data-ins="[[basketball|basketball]]">Wiki-link</button>' +
-      '<span class="editor__hint">Markdown \u00B7 <code>##</code> headings \u00B7 <code>&gt;&gt;&gt; exam</code> callouts \u00B7 <code>[[slug|text]]</code> links</span>' +
-      "</div>" +
-      '<textarea id="editorBox" spellcheck="false">' + esc(source) + "</textarea>" +
-      '<div class="editor__foot">' +
-      '<button class="btn" id="saveEdit">Save draft</button>' +
-      (WIKI.canPublish() ? '<button class="btn btn--ghost" id="publishEdit">Publish (mark reviewed)</button>' : "") +
-      '<button class="btn btn--ghost" id="cancelEdit">Cancel</button>' +
-      (WIKI.hasLocalEdit(slug) ? '<button class="btn btn--ghost btn--danger" id="resetEdit">Discard local draft</button>' : "") +
-      "</div>" +
-      "</div>" +
-      '<div class="mt"><p class="small muted"><b>Tip:</b> open the article on another tab to preview \u2014 saved drafts render instantly under the article.</p></div>'
-    );
-  }
-
   function renderHistory(slug) {
     var r = resolveArticle(slug);
     if (!r) return renderNotFound();
@@ -616,7 +568,7 @@
         '<span class="muted">' + esc(r2.note) + "</span>" +
         "</div>" +
         '<div class="rev__diff">' + esc(r2.body.slice(0, 600)) + (r2.body.length > 600 ? "\u2026" : "") + "</div>" +
-        '<div class="mt"><a class="btn btn--small btn--ghost" href="#/article/' + slug + '" data-revert="' + r2.id + '">Restore this version</a></div>' +
+        (WIKI.canEdit() ? '<div class="mt"><a class="btn btn--small btn--ghost" href="#/article/' + slug + '" data-revert="' + r2.id + '">Restore this version</a></div>' : "") +
         "</div>";
     });
     return html;
@@ -707,10 +659,8 @@
     training: renderTraining,
     glossary: renderGlossary,
     glossRows: glossRows,
-    compare: renderCompare,
-    contribute: renderContribute,
+compare: renderCompare,
     search: renderSearch,
-    edit: renderEdit,
     history: renderHistory,
     quiz: renderQuiz,
     quizPlay: renderQuizPlay,
@@ -757,7 +707,7 @@
     }).join("");
 
     var editBanner = edited ?
-      '<div class="notice notice--info"><div><b>Local draft active.</b> Showing the working copy saved on this device. <a href="#/history/' + a.slug + '">Review revisions</a> or <a href="#/edit/' + a.slug + '">continue editing</a>.</div></div>'
+      '<div class="notice notice--info"><div><b>Local draft active.</b> Showing the working copy saved on this device. <a href="#/history/' + a.slug + '">Review revisions</a>' + (WIKI.canEdit() ? ' or <a href="#/edit/' + a.slug + '">continue editing</a>' : "") + ".</div></div>"
       : "";
 
     var toolbar =
