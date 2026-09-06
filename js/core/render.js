@@ -119,6 +119,11 @@
       M.map(function (m) {
         return '<a class="chip" href="#/module/' + m.key + '"><span>' + m.icon + "</span>" + esc(m.title) + '<span class="chip__count">' + m.num + "</span></a>";
       }).join("") +
+      "</div>" +
+      '<div class="chips" style="margin-top:10px">' +
+      M.filter(function (m) { return (m.key === "m1" && window.ANATOMY) || (m.key === "m2" && window.KINESIOLOGY) || (m.key === "m3" && window.TRAINING); }).map(function (m) {
+        return '<a class="chip chip--guide" href="#/' + ({ m1: "anatomy", m2: "kinesiology", m3: "training" })[m.key] + '"><span>&#128218;</span>Study guide <span class="chip__count">' + m.num + "</span></a>";
+      }).join("") +
       "</div></section>" +
 
       '<section class="section"><div class="section__head"><h2><span class="num">02</span>Browse by category</h2>' +
